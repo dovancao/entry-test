@@ -1,0 +1,156 @@
+<div class="container">
+    <div class="row">
+<table id="myTable" class="table table-striped">
+  <thead>
+  <tr class="header">
+    <th style="width:30%;">User</th>
+    <th style="width:30%;">Full Name</th>
+    <th style="width:30%;">Email
+        <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for users.." title="Type in a name">
+    </th>
+    <th style="width:4%;">
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id="Sort">Sort<span class="caret"></span></button>
+        </div>
+    </th>
+  </tr>
+  </thead>
+  <tbody class="tbody" id="tbody">
+  
+  </tbody>
+  
+</table>
+<div class="text-center">
+  <button type="button" class="btn btn-danger" id="addRecord">View Record</button>
+</div>
+
+<div class="text-center">
+  <button type="button" class="btn btn-danger" id="nextRecord">Next Record</button>
+</div>
+
+</div>
+</div>
+
+<script>
+    let url = window.location.href;
+    let idPage = url.slice(url.lastIndexOf('/')+1, url.indexOf('?'));
+    console.log(idPage);
+    
+
+    //sort name
+    $("#Sort").click(function(){
+        let list, i, switching,td, shouldSwitch, dir, switchcount = 0;
+        list = document.getElementById("tbody");
+        switching = true;
+        dir ="asc";
+        table = document.getElementById("myTable");
+        let tr = table.getElementsByTagName("tr");
+        while(switching){
+            //start by: no switching is done
+            switching = false;
+            td = list.getElementsByTagName("td");
+
+            //lopp through all username with tag td
+            for(i = 0; i<(tr.length -1); i+=3){
+                shouldSwitch = false;
+                // a => z
+                if(dir =="asc") {
+                    if(td[i].innerHTML.toLowerCase() > td[i+3].innerHTML.toLowerCase()){
+                        shouldSwitch = true;
+                        break;
+                    }    
+                    // z -> a
+                }else if (dir =="desc"){
+                    if(td[i].innerHTML.toLowerCase() < td[i+3].innerHTML.toLowerCase()){
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+        
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                tr[i].parentNode.insertBefore(tr[i+1],tr[i]);
+                switching = true;
+                switchcount ++;
+            }else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if(switchcount === 0 && dir =="asc"){
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    });
+
+    // search name
+    function myFunction() {
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+        }
+    };
+
+    let indexPage =1;
+    $("#addRecord").click(function(){
+    document.getElementById("tbody").innerHTML ="";
+    $.ajax({
+        url: `/api/users/${idPage}?page=${indexPage}`,
+        type: 'GET',
+        success: function(response){
+            console.log(response.users);
+            let allUsers = response.users;
+            console.log(allUsers[0].username);
+            allUsers.forEach(function printUser(user){
+            $("tbody").append(`<tr>
+                            <td>${user.username}</td>
+                            <td>${user.fullname}</td>
+                            <td>${user.email}</td>
+                            </tr>`)
+            });
+        },
+        error: function(response) {
+            console.log("Error", response);
+        }
+    })
+    });
+
+    $("#nextRecord").click(function (){
+        document.getElementById("tbody").innerHTML ="";
+        indexPage += 1;
+        $.ajax({
+        url: `/api/users/${idPage}?page=${indexPage}`,
+        type: 'GET',
+        success: function(response){
+            console.log(response.users);
+            let allUsers = response.users;
+            console.log(allUsers[0].username);
+            allUsers.forEach(function printUser(user){
+            $("tbody").append(`<tr>
+                            <td>${user.username}</td>
+                            <td>${user.fullname}</td>
+                            <td>${user.email}</td>
+                            </tr>`)
+            });
+        },
+        error: function(response) {
+            console.log("Error", response);
+            alert("We didn't have any next page")
+        }
+    })
+    })
+
+</script>

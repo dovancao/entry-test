@@ -1,0 +1,128 @@
+<div class="container">
+    	<div class="row">
+			<div class="col-md-6 col-md-offset-3">
+				<div class="panel panel-login">
+					<div class="panel-heading">
+						<div class="row">
+							<div class="col-xs-6">
+								<a href="#" class="active" id="login-form-link">Login</a>
+							</div>
+							<div class="col-xs-6">
+								<a href="#" id="register-form-link">Register</a>
+							</div>
+						</div>
+						<hr>
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-lg-12">
+								<form id="login-form" role="form" style="display: block;">
+									<div class="form-group">
+										<input type="text" name="username_login" id="username_login" tabindex="1" class="form-control" placeholder="Username_login" value="">
+									</div>
+									<div class="form-group">
+										<input type="password" name="password_login" id="password_login" tabindex="2" class="form-control" placeholder="Password_login">
+									</div>
+									<button type="submit" class="btn btn-danger">LOGIN</button>
+								</form>
+								<form id="register-form" role="form" style="display: none;">
+									<div class="form-group">
+										<input type="text" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" value="">
+									</div>
+                                    <div class="form-group">
+										<input type="text" name="fullname" id="fullname" tabindex="1" class="form-control" placeholder="Fullname" value="">
+									</div>
+									<div class="form-group">
+										<input type="email" name="email" id="email" tabindex="1" class="form-control" placeholder="Email Address" value="">
+									</div>
+									<div class="form-group">
+										<input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
+									</div>
+									<div class="form-group">
+										<input type="password" name="confirm-password" id="confirm-password" tabindex="2" class="form-control" placeholder="Confirm Password">
+									</div>
+									<button type="submit" class="btn btn-danger">REGISTER</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+    <script>
+        $(function() {
+
+            //login
+    $('#login-form-link').click(function(e) {
+		$("#login-form").delay(100).fadeIn(100);
+ 		$("#register-form").fadeOut(100);
+		$('#register-form-link').removeClass('active');
+		$(this).addClass('active');
+		e.preventDefault();
+	});
+        
+	$('#login-form').submit(function(e){
+        e.preventDefault();
+
+        if( document.getElementById("username_login").value == "" && document.getElementById("password_login").value == "" ){
+			alert("pls enter valid username or password");
+        }else{
+            
+			$.ajax({
+            url: "/api/auth",
+            method: "POST",
+            data: {
+                username: document.getElementById("username_login").value,
+                password: document.getElementById("password_login").value
+            }})
+            .done (function(response){
+                console.log(response);	
+				window.location.href = `/users/${response.user.userId}`
+            })
+            .fail (function(response) {
+                console.log("Error", response);
+            })
+        }
+        });
+
+
+    //register
+	$('#register-form-link').click(function(e) {
+		$("#register-form").delay(100).fadeIn(100);
+ 		$("#login-form").fadeOut(100);
+		$('#login-form-link').removeClass('active');
+		$(this).addClass('active');
+		e.preventDefault();
+	});
+        
+	$('#register-form').submit(function(e){
+       
+    e.preventDefault();
+
+    if(document.getElementById("confirm-password").value === document.getElementById("password").value){
+    $.ajax({
+            url:"/users",
+            method: "POST",
+            data: {
+                username: document.getElementById("username").value,
+                fullname: document.getElementById("fullname").value,
+                password: document.getElementById("password").value,
+                email: document.getElementById("email").value
+            }})
+            .done (function(response){
+                console.log("success"+response);
+                alert("register success, pls login");
+                 window.location.href = '/login';
+            })
+            .fail (function(response) {
+                console.log("Error", response.err);
+                alert("email or username is used");
+            })
+        }else {
+            console.log("pls enter password exactly");
+        }
+	})
+	})
+    </script>
