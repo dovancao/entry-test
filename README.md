@@ -10,8 +10,8 @@
 2.[Install On MacOs Siera 10.12 and higher](#macosx)
 3.[Install On Centos 7 and higher](#centos)
 
-<a name="ubuntu">
-## Install On Ubuntu - Linux
+
+## Install On Ubuntu - Linux <a name="ubuntu">
 
 #### Install
 **Step 1**: Download Docker
